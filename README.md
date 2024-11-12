@@ -116,12 +116,6 @@ COPY models/ models/
 # Expose ports for FastAPI and Streamlit
 EXPOSE 8000
 EXPOSE 8501
-
-# Copy startup script and make it executable
-COPY start.sh .
-RUN chmod +x start.sh
-
-CMD ["./start.sh"]
 ```
 
 ### Docker Compose Configuration
@@ -129,11 +123,10 @@ CMD ["./start.sh"]
 The `docker-compose.yml` file orchestrates the application, managing two services: the backend and frontend.
 
 ```yaml
-version: '3'
 services:
   backend:
     build: .
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000
+    command: uvicorn app.main:app --reload
     ports:
       - "8000:8000"
     volumes:
@@ -143,13 +136,13 @@ services:
 
   frontend:
     build: .
-    command: streamlit run frontend/streamlit_app.py --server.port 8501 --server.address 0.0.0.0
+    command: streamlit run frontend/streamlit_app.py
     ports:
       - "8501:8501"
     depends_on:
       - backend
     environment:
-      - BACKEND_URL=http://backend:8000
+      - BACKEND_URL=http://127.0.0.1:8000
 ```
 
 - **backend**:
@@ -225,5 +218,6 @@ docker-compose logs -f
 ## Conclusion
 
 This project demonstrates an end-to-end image classification pipeline with a Vision Transformer model. The app is containerized for ease of deployment and scalability. Both the backend and frontend work together to classify images, provide real-time performance metrics, and visualize results.
+The finetuned model is actually hosted on my huggingface profile [here](https://huggingface.co/Binaryy/test-trainer)
 
 ---
